@@ -10,18 +10,17 @@ class TodoApp:
         self.master = master
         master.title("Todo List")
 
-        # Set up custom font with initial size
         self.custom_font = tkFont.Font(family="Helvetica", size=12)
 
-        # Configure grid weights to allow resizing
-        master.rowconfigure(0, weight=1)  # Listbox row
-        master.rowconfigure(1, weight=0)  # Entry row
-        master.rowconfigure(2, weight=0)  # Add button row
-        master.rowconfigure(3, weight=0)  # Delete button row
-        master.rowconfigure(4, weight=0)  # Font slider row
+        master.rowconfigure(0, weight=1)
+        master.rowconfigure(1, weight=0)
+        master.rowconfigure(2, weight=0)
+        master.rowconfigure(3, weight=0)
+        master.rowconfigure(4, weight=0)
+        master.rowconfigure(5, weight=0)
         master.columnconfigure(0, weight=1)
 
-        # Listbox widget
+        # Listbox for todo items
         self.listbox = tk.Listbox(master, font=self.custom_font)
         self.listbox.grid(row=0, column=0, padx=10, pady=10, sticky="nsew")
 
@@ -38,11 +37,23 @@ class TodoApp:
         self.delete_button = tk.Button(master, text="Delete Selected", font=self.custom_font, command=self.delete_item)
         self.delete_button.grid(row=3, column=0, padx=10, pady=5, sticky="ew")
 
-        # Slider to adjust font size
+        # Font size slider
         self.font_slider = tk.Scale(master, from_=8, to=30, orient="horizontal",
                                     label="Font Size", command=self.update_font_size)
-        self.font_slider.set(12)  # Default font size
+        self.font_slider.set(12)
         self.font_slider.grid(row=4, column=0, padx=10, pady=5, sticky="ew")
+
+        # Frame for reorder buttons
+        reorder_frame = tk.Frame(master)
+        reorder_frame.grid(row=5, column=0, padx=10, pady=5, sticky="ew")
+        reorder_frame.columnconfigure(0, weight=1)
+        reorder_frame.columnconfigure(1, weight=1)
+
+        self.move_up_button = tk.Button(reorder_frame, text="Move Up", font=self.custom_font, command=self.move_item_up)
+        self.move_up_button.grid(row=0, column=0, padx=5, sticky="ew")
+
+        self.move_down_button = tk.Button(reorder_frame, text="Move Down", font=self.custom_font, command=self.move_item_down)
+        self.move_down_button.grid(row=0, column=1, padx=5, sticky="ew")
 
         self.load_items()
 
@@ -80,6 +91,32 @@ class TodoApp:
             self.save_items()
         else:
             messagebox.showwarning("Selection Error", "Please select an item to delete.")
+
+    def move_item_up(self):
+        selected = self.listbox.curselection()
+        if selected:
+            index = selected[0]
+            if index > 0:
+                text = self.listbox.get(index)
+                self.listbox.delete(index)
+                new_index = index - 1
+                self.listbox.insert(new_index, text)
+                self.listbox.selection_clear(0, tk.END)
+                self.listbox.selection_set(new_index)
+                self.save_items()
+
+    def move_item_down(self):
+        selected = self.listbox.curselection()
+        if selected:
+            index = selected[0]
+            if index < self.listbox.size() - 1:
+                text = self.listbox.get(index)
+                self.listbox.delete(index)
+                new_index = index + 1
+                self.listbox.insert(new_index, text)
+                self.listbox.selection_clear(0, tk.END)
+                self.listbox.selection_set(new_index)
+                self.save_items()
 
 if __name__ == "__main__":
     root = tk.Tk()
