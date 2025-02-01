@@ -10,34 +10,45 @@ class TodoApp:
         self.master = master
         master.title("Todo List")
 
-        # Set your custom font here (change family and size as desired)
+        # Set up custom font with initial size
         self.custom_font = tkFont.Font(family="Helvetica", size=12)
 
-        # Configure grid to make widgets resize with window
-        master.rowconfigure(0, weight=1)  # Listbox expands vertically
-        master.rowconfigure(1, weight=0)  # Entry field
-        master.rowconfigure(2, weight=0)  # Add button
-        master.rowconfigure(3, weight=0)  # Delete button
-        master.columnconfigure(0, weight=1)  # All widgets expand horizontally
+        # Configure grid weights to allow resizing
+        master.rowconfigure(0, weight=1)  # Listbox row
+        master.rowconfigure(1, weight=0)  # Entry row
+        master.rowconfigure(2, weight=0)  # Add button row
+        master.rowconfigure(3, weight=0)  # Delete button row
+        master.rowconfigure(4, weight=0)  # Font slider row
+        master.columnconfigure(0, weight=1)
 
-        # Listbox for displaying todo items
+        # Listbox widget
         self.listbox = tk.Listbox(master, font=self.custom_font)
         self.listbox.grid(row=0, column=0, padx=10, pady=10, sticky="nsew")
 
-        # Entry widget for adding new todo items
+        # Entry widget
         self.entry = tk.Entry(master, font=self.custom_font)
         self.entry.grid(row=1, column=0, padx=10, pady=5, sticky="ew")
         self.entry.bind("<Return>", lambda event: self.add_item())
 
-        # Button to add an item
+        # Add button
         self.add_button = tk.Button(master, text="Add Item", font=self.custom_font, command=self.add_item)
         self.add_button.grid(row=2, column=0, padx=10, pady=5, sticky="ew")
 
-        # Button to delete selected item(s)
+        # Delete button
         self.delete_button = tk.Button(master, text="Delete Selected", font=self.custom_font, command=self.delete_item)
         self.delete_button.grid(row=3, column=0, padx=10, pady=5, sticky="ew")
 
+        # Slider to adjust font size
+        self.font_slider = tk.Scale(master, from_=8, to=30, orient="horizontal",
+                                    label="Font Size", command=self.update_font_size)
+        self.font_slider.set(12)  # Default font size
+        self.font_slider.grid(row=4, column=0, padx=10, pady=5, sticky="ew")
+
         self.load_items()
+
+    def update_font_size(self, val):
+        new_size = int(val)
+        self.custom_font.configure(size=new_size)
 
     def load_items(self):
         if os.path.exists(TODO_FILE):
