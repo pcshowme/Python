@@ -76,7 +76,7 @@ def get_recent_performance(youtube_analytics):
         ids='channel==MINE',
         startDate=start_date,
         endDate=end_date,
-        metrics='views,watchTime,averageViewDuration,subscribersGained,likes,comments,shares'
+        metrics='views,estimatedMinutesWatched,averageViewDuration,subscribersGained,likes,comments,shares'
     )
     response = request.execute()
     if response and 'rows' in response:
