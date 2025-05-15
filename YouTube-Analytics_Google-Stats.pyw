@@ -168,7 +168,7 @@ if __name__ == '__main__':
             'Top Video 2 Title': list(top_videos.keys())[1] if len(top_videos) > 1 else 'N/A',
             'Top Video 2 Views': list(top_videos.values())[1] if len(top_videos) > 1 else 'N/A',
             'Top Video 3 Title': list(top_videos.keys())[2] if len(top_videos) > 2 else 'N/A',
-            'Top Video 3 Views': list(top_videos.values())[2] if len(top_videos) > 2 else 'N/A\',
+            'Top Video 3 Views': list(top_videos.values())[2] if len(top_videos) > 2 else 'N/A',
             'Top Video 4 Title': list(top_videos.keys())[3] if len(top_videos) > 3 else 'N/A',
             'Top Video 4 Views': list(top_videos.values())[3] if len(top_videos) > 3 else 'N/A',
             'Top Video 5 Title': list(top_videos.keys())[4] if len(top_videos) > 4 else 'N/A',
