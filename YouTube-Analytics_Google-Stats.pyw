@@ -19,7 +19,7 @@ except FileNotFoundError:
     print(f"Error: API key file not found at {api_key_file}")
     exit()
 
-API_KEY = YOUTUBE_DATA_API_KEY  # Assign the loaded key
+API_KEY =Y OUTUBE_DATA_API_KEY
 channel_id = 'UC0Zoz9yO4DbkaRf6cZ9iPTw'  # Replace with your actual channel ID
 
 # Analytics API v2 settings
