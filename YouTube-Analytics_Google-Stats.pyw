@@ -24,7 +24,7 @@ channel_id = 'UC0Zoz9yO4DbkaRf6cZ9iPTw'
 
 # Analytics API v2 settings
 SCOPES = ['https://www.googleapis.com/auth/yt-analytics.readonly']
-CREDENTIALS_FILE = 'D:\\Documents\\_Data-Vault\\Code\\Private\\Keys\\Credencials-oAuth-googleusercontent.json' Â # Update if your file is elsewhere
+CREDENTIALS_FILE = 'D:\\Documents\\_Data-Vault\\Code\\Private\\Keys\\Credencials-oAuth-googleusercontent.json' Â # Update if your file is elsewhere
 TOKEN_FILE = 'token.json'
 OUTPUT_CSV_FILE = 'D:\\Documents\\_Data-Vault\\YouTube-Stats\\pcSHOWme-Insights.csv'
 
