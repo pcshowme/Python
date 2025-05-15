@@ -20,7 +20,7 @@ except FileNotFoundError:
     exit()
 
 API_KEY =Y OUTUBE_DATA_API_KEY
-channel_id = 'UC0Zoz9yO4DbkaRf6cZ9iPTw'  # Replace with your actual channel ID
+channel_id = 'UC0Zoz9yO4DbkaRf6cZ9iPTw'
 
 # Analytics API v2 settings
 SCOPES = ['https://www.googleapis.com/auth/yt-analytics.readonly']
