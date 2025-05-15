@@ -8,13 +8,23 @@ import csv
 
 # --- Configuration ---
 # Data API v3 settings
-from 'D:\\Documents\\_Data-Vault\\Code\\Private\\Keys\\Google-APIv3_key-1.py' import YOUTUBE_DATA_API_KEY
-API_KEY = YOUTUBE_DATA_API_KEY  # Replace with your actual API key
-channel_id = 'UC0Zoz9yO4DbkaRf6cZ9iPTw'  # Replace with your actual channel ID
+api_key_file = 'D:\\Documents\\_Data-Vault\\Code\\Private\\Keys\\Google-APIv3_key-1.py'
+YOUTUBE_DATA_API_KEY = None
+try:
+    with open(api_key_file, 'r') as f:
+        line = f.readline().strip()
+        if line.startswith('YOUTUBE_DATA_API_KEY ='):
+            YOUTUBE_DATA_API_KEY = line.split('=')[1].strip().strip("'")
+except FileNotFoundError:
+    print(f"Error: API key file not found at {api_key_file}")
+    exit()
+
+API_KEY = YOUTUBE_DATA_API_KEY  # Assign the loaded key
+channel_id = 'UC0Zoz9yO4DbkaRf6cZ9iPTw'  # Replace with your actual channel ID
 
 # Analytics API v2 settings
 SCOPES = ['https://www.googleapis.com/auth/yt-analytics.readonly']
-CREDENTIALS_FILE = 'D:\\Documents\\_Data-Vault\\Code\\Private\\Keys\\Credencials-oAuth-googleusercontent.json'  # Update if your file is elsewhere
+CREDENTIALS_FILE = 'D:\\Documents\\_Data-Vault\\Code\\Private\\Keys\\Credencials-oAuth-googleusercontent.json'  # Update if your file is elsewhere
 TOKEN_FILE = 'token.json'
 OUTPUT_CSV_FILE = 'D:\\Documents\\_Data-Vault\\YouTube-Stats\\pcSHOWme-Insights.csv'
 
