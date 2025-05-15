@@ -8,8 +8,9 @@ import csv
 
 # --- Configuration ---
 # Data API v3 settings
-API_KEY = 'YOUR_API_KEY'  # Replace with your actual API key
-channel_id = 'YOUR_CHANNEL_ID'  # Replace with your actual channel ID
+from 'D:\\Documents\\_Data-Vault\\Code\\Private\\Keys\\Google-APIv3_key-1.py' import YOUTUBE_DATA_API_KEY
+API_KEY = YOUTUBE_DATA_API_KEY  # Replace with your actual API key
+channel_id = 'UC0Zoz9yO4DbkaRf6cZ9iPTw'  # Replace with your actual channel ID
 
 # Analytics API v2 settings
 SCOPES = ['https://www.googleapis.com/auth/yt-analytics.readonly']
