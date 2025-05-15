@@ -3,10 +3,11 @@ import google.oauth2.credentials
 from googleapiclient.discovery import build
 from google_auth_oauthlib.flow import InstalledAppFlow
 from google.auth.transport.requests import Request
+import datetime
 
 # --- Configuration ---
 SCOPES = ['https://www.googleapis.com/auth/yt-analytics.readonly']
-CREDENTIALS_FILE = 'D:\Documents\_Data-Vault\Code\Private\Keys\Credencials-oAuth-googleusercontent.json'  # Make sure this matches your downloaded file name
+CREDENTIALS_FILE = 'D:\\Documents\\_Data-Vault\\Code\\Private\\Keys\\Credencials-oAuth-googleusercontent.json'  # Make sure this matches your downloaded file name
 
 def get_authenticated_service():
     creds = None
@@ -30,10 +31,15 @@ def get_authenticated_service():
     return build('youtubeAnalytics', 'v2', credentials=creds)
 
 def get_top_geographies(youtube_analytics):
+    today = datetime.date.today()
+    twenty_eight_days_ago = today - datetime.timedelta(days=28)
+    start_date = twenty_eight_days_ago.strftime('%Y-%m-%d')
+    end_date = today.strftime('%Y-%m-%d')
+
     request = youtube_analytics.reports().query(
         ids='channel==MINE',  # Use 'channel==YOUR_CHANNEL_ID' if needed
-        startDate='28daysAgo',
-        endDate='today',
+        startDate=start_date,
+        endDate=end_date,
         metrics='views',
         dimensions='country',
         sort='-views',
