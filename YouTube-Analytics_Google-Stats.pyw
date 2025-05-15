@@ -137,4 +137,7 @@ if __name__ == '__main__':
             'Published Date': channel_data.get('published_date', 'N/A'),
             'Subscriber Count': channel_data.get('subscriber_count', 'N/A'),
             'Total Views': channel_data.get('total_views', 'N/A'),
-            'Total Videos': channel_data.get('total_videos', 'N/A
+            'Total Videos': channel_data.get('total_videos', 'N/A'),
+
+exit()
+
