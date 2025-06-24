@@ -134,7 +134,7 @@ if __name__ == '__main__':
     timestamp = datetime.datetime.now().isoformat()
 
     # Write to CSV
-    with open(OUTPUT_CSV_FILE, 'w', newline='', encoding='utf-8') as csvfile:
+    with open(OUTPUT_CSV_FILE, 'w', newline='\r\n', encoding='utf-8') as csvfile:
         fieldnames = ['Timestamp', 'Channel Title', 'Description', 'Published Date', 'Subscriber Count', 'Total Views',
                       'Total Videos', 'Channel Keywords',
                       'Recent Views (28 Days)', 'Recent Watch Time (Minutes)', 'Recent Avg View Duration (Seconds)',
