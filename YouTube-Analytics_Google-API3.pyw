@@ -121,14 +121,13 @@ csv_path = f'D:/Documents/_Data-Vault/YouTube-Stats/video-details_{csv_date}.csv
 with open(csv_path, 'w', newline='', encoding='utf-8') as csvfile:
     writer = csv.writer(csvfile)
     # Write channel info header
-    writer.writerow(['Channel Title', 'Description', 'Published At', 'Subscribers', 'Total Views', 'Total Videos', 'Keywords'])
+    writer.writerow(['Channel Title', 'Published At', 'Subscribers', 'Total Views', 'Total Videos', 'Keywords'])
     if channel_data:
         snippet = channel_data["snippet"]
         statistics = channel_data["statistics"]
         branding = channel_data.get("brandingSettings", {}).get("channel", {})
         writer.writerow([
             snippet['title'],
-            snippet.get('description', 'N/A'),
             snippet.get('publishedAt', 'N/A'),
             statistics.get('subscriberCount', 'N/A'),
             statistics.get('viewCount', 'N/A'),
@@ -137,7 +136,7 @@ with open(csv_path, 'w', newline='', encoding='utf-8') as csvfile:
         ])
     # Write video info header
     writer.writerow([])
-    writer.writerow(["Title", "Description", "Published Date", "Views", "Likes", "Comments", "Duration", "Tags", "Category ID", "Topic IDs", "Local Title", "Local Description"])
+    writer.writerow(["Title", "Published Date", "Views", "Likes", "Likes/Views %", "Comments", "Duration", "Tags", "Category ID", "Topic IDs", "Local Title", "Local Description"])
     if videos_data:
         for video in videos_data:
             snippet = video["snippet"]
@@ -145,8 +144,7 @@ with open(csv_path, 'w', newline='', encoding='utf-8') as csvfile:
             content_details = video.get("contentDetails", {})
             topic_details = video.get("topicDetails", {})
             localizations = video.get("localizations", {})
-            title = snippet["title"].replace(",", " ")
-            description = snippet.get("description", " ").replace(",", " ")
+            title = snippet["title"].replace(",", " ")[:50]
             published_date = snippet["publishedAt"]
             view_count = statistics.get("viewCount", "N/A")
             like_count = statistics.get("likeCount", "N/A")
@@ -155,10 +153,17 @@ with open(csv_path, 'w', newline='', encoding='utf-8') as csvfile:
             tags = ", ".join(snippet.get("tags", [])) if snippet.get("tags") else "N/A"
             category_id = snippet.get("categoryId", "N/A")
             topic_ids = ", ".join(topic_details.get("topicIds", [])) if topic_details and topic_details.get("topicIds") else "N/A"
-            local_title = localizations.get("en", {}).get("title", "N/A").replace(",", " ")
+            local_title = localizations.get("en", {}).get("title", "N/A").replace(",", " ")[:50]
             local_description = localizations.get("en", {}).get("description", "N/A").replace(",", " ")
+            # Calculate likes/views percentage
+            try:
+                likes = int(like_count)
+                views = int(view_count)
+                likes_views_pct = f"{(likes / views * 100):.2f}%" if views > 0 else "N/A"
+            except Exception:
+                likes_views_pct = "N/A"
             writer.writerow([
-                title, description, published_date, view_count, like_count, comment_count, duration, tags, category_id, topic_ids, local_title, local_description
+                title, published_date, view_count, like_count, likes_views_pct, comment_count, duration, tags, category_id, topic_ids, local_title, local_description
             ])
 
 print(f"\nData retrieval complete! CSV written to {csv_path}")
