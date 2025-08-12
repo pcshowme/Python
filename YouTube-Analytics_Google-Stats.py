@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 import os
 import google.oauth2.credentials
 from googleapiclient.discovery import build
@@ -6,8 +5,6 @@ from google_auth_oauthlib.flow import InstalledAppFlow
 from google.auth.transport.requests import Request
 import datetime
 import csv
-import time
-from googleapiclient.errors import HttpError
 
 # --- Configuration ---
 # Data API v3 settings
@@ -26,14 +23,9 @@ API_KEY = YOUTUBE_DATA_API_KEY
 channel_id = 'UC0Zoz9yO4DbkaRf6cZ9iPTw'
 
 # Analytics API v2 settings
-SCOPES = [
-    'https://www.googleapis.com/auth/yt-analytics.readonly',
-    'https://www.googleapis.com/auth/youtube.readonly'
-]
-# Updated credentials file path
-CREDENTIALS_FILE = r'D:\\Documents\\_Data-Vault\\Code\\Private\\Keys\\oauth_pcshowme-yt_desktop.json'
-# Per-channel token file to avoid cross-channel confusion
-TOKEN_FILE = f'token_{channel_id.lower()}.json'
+SCOPES = ['https://www.googleapis.com/auth/yt-analytics.readonly']
+CREDENTIALS_FILE = 'D:\\Documents\\_Data-Vault\\Code\\Private\\Keys\\Credencials-oAuth-googleusercontent.json'  # Update if your file is elsewhere
+TOKEN_FILE = 'token.json'
 OUTPUT_CSV_FILE = 'D:\\Documents\\_Data-Vault\\YouTube-Stats\\pcSHOWme-Insights.csv'
 
 
@@ -76,49 +68,6 @@ def get_channel_overview(youtube_data, channel_id):
     return {}
 
 
-# Added helper: verify the authenticated channel matches expected
-
-def verify_authenticated_channel(youtube_data, expected_channel_id):
-    try:
-        resp = youtube_data.channels().list(part='id', mine=True).execute()
-        mine_id = resp['items'][0]['id'] if resp.get('items') else None
-        if mine_id:
-            if mine_id != expected_channel_id:
-                print(f'Warning: Authenticated channel {mine_id} != expected {expected_channel_id}')
-            else:
-                print(f'Authenticated channel matches expected: {mine_id}')
-        else:
-            print('Could not determine authenticated channel ID.')
-    except HttpError as e:
-        print('Channel identity check HttpError:', e)
-    except Exception as e:
-        print('Channel identity check error:', e)
-
-
-def execute_request(request, retries=5):
-    for attempt in range(1, retries + 1):
-        try:
-            return request.execute()
-        except HttpError as e:
-            status = getattr(e.resp, 'status', None)
-            if status == 403:
-                print('\n[403 Forbidden] Possible causes:')
-                print('  - YouTube Analytics API not enabled in this Google Cloud project')
-                print('  - OAuth token missing required scopes (delete it and re-auth)')
-                print('  - Authorized Google account is not the owner/manager of the channel')
-                print('  - Using a Brand Channel: ensure proper account during OAuth flow')
-                print('  - Quota / policy restriction (check Cloud Console > APIs & Services > Quotas)')
-                print('Raw error:', e)
-                if 'insufficientPermissions' in str(e):
-                    print('-> Detected insufficient permissions. Delete token file and re-run to grant new scopes.')
-            if attempt == retries or status in (400, 401):
-                raise
-            sleep_for = 2 ** attempt
-            print(f'Retry {attempt}/{retries} after {sleep_for}s due to error {e}')
-            time.sleep(sleep_for)
-    return None
-
-
 def get_recent_performance(youtube_analytics):
     today = datetime.date.today()
     start_date = (today - datetime.timedelta(days=28)).strftime('%Y-%m-%d')
@@ -129,12 +78,12 @@ def get_recent_performance(youtube_analytics):
         endDate=end_date,
         metrics='views,estimatedMinutesWatched,averageViewDuration,subscribersGained,likes,comments,shares'
     )
-    response = execute_request(request)
+    response = request.execute()
     if response and 'rows' in response:
         return {
             'recent_views': response['rows'][0][0],
-            'recent_watch_time': round(response['rows'][0][1] / 60, 2),
-            'recent_avg_view_duration': round(response['rows'][0][2], 2),
+            'recent_watch_time': round(response['rows'][0][1] / 60, 2),  # in minutes
+            'recent_avg_view_duration': round(response['rows'][0][2], 2),  # in seconds
             'recent_subscribers_gained': response['rows'][0][3],
             'recent_likes': response['rows'][0][4],
             'recent_comments': response['rows'][0][5],
@@ -156,38 +105,27 @@ def get_top_videos(youtube_analytics):
         sort='-views',
         maxResults=5
     )
-    response = execute_request(request)
+    response = request.execute()
     top_videos = {}
     if response and 'rows' in response:
         video_ids = [row[0] for row in response['rows']]
-        video_details_request = get_youtube_data_service().videos().list(
+        video_details_request = get_youtube_data_service().videos().list(  # Corrected this line
             part='snippet',
             id=','.join(video_ids)
         )
-        video_details_response = execute_request(video_details_request)
+        video_details_response = video_details_request.execute()
         if video_details_response and 'items' in video_details_response:
             for item in video_details_response['items']:
                 video_id = item['id']
-                title = item['snippet']['title'].replace(',', ' ')
+                title = item['snippet']['title'].replace(",", " ")
                 views = [row[1] for row in response['rows'] if row[0] == video_id][0]
                 top_videos[title] = views
     return top_videos
 
 
 if __name__ == '__main__':
-    # Force re-auth if scopes changed
-    if os.path.exists(TOKEN_FILE):
-        with open(TOKEN_FILE, 'r') as t:
-            data = t.read()
-            if 'youtube.readonly' not in data or 'yt-analytics.readonly' not in data:
-                print('Detected old token missing required scope(s). Deleting token for fresh auth...')
-                os.remove(TOKEN_FILE)
-
     youtube_analytics = get_authenticated_analytics_service()
     youtube_data = get_youtube_data_service()
-
-    # Verify authenticated channel identity
-    verify_authenticated_channel(youtube_data, channel_id)
 
     channel_data = get_channel_overview(youtube_data, channel_id)
     recent_performance = get_recent_performance(youtube_analytics)
