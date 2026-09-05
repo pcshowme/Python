@@ -1,13 +1,9 @@
 """
-Fringe Glyph Substitution Cipher (5-bit)
-
-Each Latin letter maps to a canonical Fringe base glyph
-(Apple, Butterfly, Flower, Frog, Hand, Leaf, Seahorse, Smoke)
-plus a distinct yellow-dot orientation/position.
+Fringe Cipher CLI: Interactive Encoder/Decoder
+Encodes text into portable 'Glyph:Dot' strings and decodes them back.
 """
 
 # Canonical Fringe Glyph alphabet mapping
-# Format: CHAR -> (BASE_GLYPH, DOT_POSITION)
 FRINGE_ALPHABET = {
     'A': ('Apple', 'External-Right'),
     'B': ('Apple', 'Top'),
@@ -37,66 +33,70 @@ FRINGE_ALPHABET = {
     'Z': ('Frog', 'Eye'),
 }
 
-# Reverse lookup dictionary for decoding: (glyph, dot) -> char
-REVERSE_LOOKUP = {v: k for k, v in FRINGE_ALPHABET.items()}
+# Reverse lookup dictionary for decoding: "glyph:dot" (lowercased) -> char
+REVERSE_LOOKUP = {
+    f"{glyph.lower()}:{dot.lower()}": char
+    for char, (glyph, dot) in FRINGE_ALPHABET.items()
+}
 
 
-def encrypt_fringe(text: str) -> list[dict]:
-    """
-    Encrypt plain text into a structured Fringe glyph token stream.
-    Preserves spaces and punctuation as raw literal tokens.
-    """
-    encoded_tokens = []
-    for char in text.upper():
-        if char in FRINGE_ALPHABET:
-            glyph, dot = FRINGE_ALPHABET[char]
-            encoded_tokens.append({
-                "type": "glyph",
-                "char": char,
-                "glyph": glyph,
-                "dot": dot,
-                "token": f"{glyph}:{dot}"
-            })
-        elif char == ' ':
-            encoded_tokens.append({"type": "separator", "token": " "})
+def encode_message(text: str) -> str:
+    """Encodes plain text into space-separated Glyph:Dot tokens."""
+    tokens = []
+    for word in text.upper().split(' '):
+        word_tokens = []
+        for char in word:
+            if char in FRINGE_ALPHABET:
+                glyph, dot = FRINGE_ALPHABET[char]
+                word_tokens.append(f"{glyph}:{dot}")
+            else:
+                word_tokens.append(char)
+        tokens.append(" ".join(word_tokens))
+    return " / ".join(tokens)
+
+
+def decode_message(cipher_text: str) -> str:
+    """Decodes space-separated Glyph:Dot tokens back into text."""
+    decoded_words = []
+    raw_words = cipher_text.strip().split(" / ")
+
+    for word in raw_words:
+        chars = []
+        tokens = word.strip().split()
+        for token in tokens:
+            cleaned_token = token.strip().lower()
+            if cleaned_token in REVERSE_LOOKUP:
+                chars.append(REVERSE_LOOKUP[cleaned_token])
+            else:
+                chars.append(token)
+        decoded_words.append("".join(chars))
+
+    return " ".join(decoded_words)
+
+
+def main():
+    while True:
+        print("\n=== FRINGE CIPHER INTERFACE ===")
+        print("1. Encode (Plain Text -> Fringe Glyphs)")
+        print("2. Decode (Fringe Glyphs -> Plain Text)")
+        print("3. Exit")
+        choice = input("Select an option (1-3): ").strip()
+
+        if choice == "1":
+            msg = input("\nEnter message to ENCODE: ")
+            encoded = encode_message(msg)
+            print(f"\nCiphertext:\n{encoded}\n")
+        elif choice == "2":
+            print("\nEnter token string (e.g., 'Smoke:Top-Left Butterfly:Center / Apple:Top'):")
+            cipher = input("Enter message to DECODE: ")
+            decoded = decode_message(cipher)
+            print(f"\nDecoded Text:\n{decoded}\n")
+        elif choice == "3":
+            print("Shutting down interface.")
+            break
         else:
-            encoded_tokens.append({"type": "literal", "token": char})
-    return encoded_tokens
-
-
-def decrypt_fringe(tokens: list[dict]) -> str:
-    """
-    Decrypt a structured Fringe glyph token stream back into plain text.
-    """
-    decoded = []
-    for token in tokens:
-        if token["type"] == "glyph":
-            key = (token["glyph"], token["dot"])
-            decoded.append(REVERSE_LOOKUP.get(key, "?"))
-        else:
-            decoded.append(token["token"])
-    return "".join(decoded)
-
-
-def print_encoded_stream(tokens: list[dict]) -> None:
-    for item in tokens:
-        if item["type"] == "glyph":
-            print(f"[{item['glyph']:<10} | Dot: {item['dot']:<15}] -> {item['char']}")
-        elif item["type"] == "separator":
-            print("--- [SPACE] ---")
-        else:
-            print(f"[LITERAL: {item['token']}]")
+            print("Invalid selection. Enter 1, 2, or 3.")
 
 
 if __name__ == "__main__":
-    plaintext = "OBSERVER"
-    print(f"Original Text: {plaintext}\n")
-
-    # Encrypt
-    encrypted_stream = encrypt_fringe(plaintext)
-    print("--- ENCRYPTED GLYPH STREAM ---")
-    print_encoded_stream(encrypted_stream)
-
-    # Decrypt
-    decrypted_text = decrypt_fringe(encrypted_stream)
-    print(f"\nDecrypted Output: {decrypted_text}")
+    main()
