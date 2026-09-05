@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 """
-fringe_cipher.py — Encoder/decoder for the glyph cipher used in the TV show Fringe.
+fringe_cipher.py - Encoder/decoder for the glyph cipher used in the TV show Fringe.
 
 The show flashed one of eight glyphs (Apple, Butterfly, Flower, Frog, Hand, Leaf,
 Seahorse, Smoke) before each commercial break. Each glyph appeared either in its
 normal orientation or mirrored, with a glowing yellow dot in one of several
-positions. Every (glyph, orientation, dot) combination maps to one letter — a
+positions. Every (glyph, orientation, dot) combination maps to one letter - a
 monoalphabetic substitution cipher.
 
 Since a terminal can't draw the glyphs, each one is written as a token:
@@ -21,7 +21,7 @@ Letters are separated by spaces, words by " / ".
 
 Key provenance: A-E, G-I, K-L, N-P, R-V come from the Sanchez/Sadun solution.
 F, J, M, Q, W, Y follow the fan reconstruction; X and Z were never aired and are
-placeholders. Edit KEY below (or supply a JSON key file) to correct any entry —
+placeholders. Edit KEY below (or supply a JSON key file) to correct any entry -
 the program only requires that the table be one-to-one.
 
 Usage:
@@ -160,8 +160,8 @@ BANNER = r"""
 """
 
 MENU = """
-  [1] Encode  — text to glyphs
-  [2] Decode  — glyphs to text
+  [1] Encode  - text to glyphs
+  [2] Decode  - glyphs to text
   [3] Show key
   [4] Exit
 """
@@ -179,24 +179,18 @@ def show_key(key):
     print(" use --dump-key, edit, and --key to override.\n")
 
 
-def read_multiline(prompt):
-    """Read lines until an empty line; supports pasting multi-line ciphertext."""
-    print(prompt + " (finish with an empty line):")
-    lines = []
-    while True:
-        try:
-            line = input("> ")
-        except EOFError:
-            break
-        if not line.strip():
-            break
-        lines.append(line)
-    return " ".join(lines)
+def ask(prompt):
+    """Single-line input; returns None on Ctrl-C / Ctrl-D so callers can bail."""
+    try:
+        return input(prompt)
+    except (EOFError, KeyboardInterrupt):
+        print()
+        return None
 
 
 def do_encode(key):
-    text = read_multiline("Enter text to encode")
-    if not text.strip():
+    text = ask("Text to encode: ")
+    if text is None or not text.strip():
         print("Nothing to encode.")
         return
     cipher, dropped = encode(text, key)
@@ -207,8 +201,8 @@ def do_encode(key):
 
 
 def do_decode(key):
-    cipher = read_multiline("Enter glyph tokens to decode")
-    if not cipher.strip():
+    cipher = ask("Glyph tokens to decode (words separated by / ): ")
+    if cipher is None or not cipher.strip():
         print("Nothing to decode.")
         return
     text, unknown = decode(cipher, key)
@@ -239,11 +233,11 @@ def main():
     actions = {"1": do_encode, "2": do_decode, "3": show_key}
     while True:
         print(MENU)
-        try:
-            choice = input("Select: ").strip().lower()
-        except (EOFError, KeyboardInterrupt):
-            print("\nGoodbye.")
+        choice = ask("Select: ")
+        if choice is None:
+            print("Goodbye.")
             return
+        choice = choice.strip().lower()
         if choice in ("4", "q", "x", "exit", "quit"):
             print("Goodbye.")
             return
@@ -251,7 +245,7 @@ def main():
         if action:
             action(key)
         else:
-            print("Invalid choice — enter 1, 2, 3 or 4.")
+            print("Invalid choice - enter 1, 2, 3 or 4.")
 
 
 if __name__ == "__main__":
